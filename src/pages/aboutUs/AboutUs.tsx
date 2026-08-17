@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { IconRocket, IconStory, IconCheck, IconGlobe, IconBulb, IconHeart } from "../components/ui/iconrocket";
-import Footer from "../components/ui/Footer";
+import { IconRocket, IconStory, IconCheck, IconGlobe, IconBulb, IconHeart } from "../../components/ui/iconrocket";
+import Footer from "../../components/ui/Footer";
 
 // ── Fonts ─────────────────────────────────────────────────────────────────
 // Tailwind can't fetch remote font files on its own, so this <style> tag is

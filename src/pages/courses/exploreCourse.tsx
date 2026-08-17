@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { COURSES, CATEGORIES, LEVELS } from "../../../types";
-import type { Category, Level } from "../../../types";
-import CourseCard from "./CourseCard";
-import PaginationBtn from "../../ui/paginationBtn";
-import FilterChip from "../../ui/FilterChip";
-import Footer from "../../ui/Footer";
+import { COURSES, CATEGORIES, LEVELS } from "../../types";
+import type { Category, Level } from "../../types";
+import CourseCard from "./subComponents/CourseCard";
+import PaginationBtn from "../../components/ui/paginationBtn";
+import FilterChip from "../../components/ui/FilterChip";
+import Footer from "../../components/ui/Footer";
 
 
 

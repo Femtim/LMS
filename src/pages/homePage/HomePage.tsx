@@ -1,12 +1,12 @@
 import React from 'react';
 import Navbar from '../components/Navbar';
-import HeroSection from '../components/HeroSection';
-import TrustBar from '../components/TrustBar';
-import FeaturedCourses from '../components/FeaturedCourses';
-import WhyChoose from '../components/WhyChoose';
-import Testimonials from '../components/Testimonials';
-import CTABanner from '../components/CTABanner';
-import Footer from '../components/ui/Footer';
+import HeroSection from './subComponents/HeroSection';
+import TrustBar from './subComponents/TrustBar';
+import FeaturedCourses from './subComponents/FeaturedCourses';
+import WhyChoose from './subComponents/WhyChoose';
+import Testimonials from './subComponents/Testimonials';
+import CTABanner from './subComponents/CTABanner';
+import Footer from '../../components/ui/Footer';
 
 const HomePage: React.FC = () => {
   return (

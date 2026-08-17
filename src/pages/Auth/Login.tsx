@@ -1,6 +1,6 @@
 import { useState } from "react"; 
-import { BookOpenIcon, EnvelopeIcon, LockIcon, GoogleIcon, CheckBadgeIcon } from "../../utils/Icon";
-import supabase from '../../utils/supabase'; 
+import { BookOpenIcon, EnvelopeIcon, LockIcon, GoogleIcon, CheckBadgeIcon } from "./subComponents/Icon";
+import supabase from "../../utils/supabase";
 
 export default function LoginPage() { 
   const [showPassword] = useState(false); 

@@ -7,7 +7,7 @@ import {
   ArrowRightIcon,
   GoogleIcon,
   FacebookIcon,
-} from "../../utils/Icon";
+} from "./subComponents/Icon";
 import supabase from "../../utils/supabase";
 
 export default function SignUpPage() {

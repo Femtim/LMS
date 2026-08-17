@@ -1,13 +1,15 @@
 import React from 'react'
-import HomePage  from './pages/HomePage'
+import HomePage  from './pages/homePage/HomePage'
 import { Navigate, Route, Routes } from "react-router-dom";
 import SignUpPage from "./pages/Auth/Signup";
 import LoginPage from "./pages/Auth/Login";
-import ExploreCourses from "./components/features/Courses/exploreCourse";
-import CourseDetailWrapper from "./components/features/Courses/CourseDetailWrapper";
-import PaymentPage from "./components/features/Courses/PaymentPage";
+import ListingPage from "./pages/courses/exploreCourse";
+import CourseDetailWrapper from "./pages/courses/subComponents/CourseDetailWrapper";
+import PaymentPage from "./components/user/dashboard/myCourses/PaymentPage";
 import Navbar from "./components/ui/Navbar";
-import AboutUs from "./pages/AboutUs";
+import AboutUs from "./pages/aboutUs/AboutUs";
+import MyLearning from "./pages/courses/exploreCourse"
+
 
 function InfoPage({ title, description }: { title: string; description: string }) {
   return (
@@ -29,7 +31,7 @@ export default function App() {
       <Navbar />
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/explore" element={<ExploreCourses />} />
+        <Route path="/explore" element={<ListingPage />} />
         <Route path="/courses/:id" element={<CourseDetailWrapper />} />
         <Route path="/payment/:id" element={<PaymentPage />} />
         <Route
@@ -47,9 +49,12 @@ export default function App() {
             />
           }
         />
+        <Route path="/myCourses" element={<MyLearning />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignUpPage />} />
+
         <Route path="*" element={<Navigate to="/" replace />} />
+
       </Routes>
     </div>
   );

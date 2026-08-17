@@ -94,6 +94,7 @@ const CourseCard: React.FC<{ course: Course }> = ({ course }) => {
             </svg>
             {course.students}
           </span>
+          
         </div>
       </div>
     </div>
@@ -149,7 +150,7 @@ const FeaturedCourses: React.FC = () => {
             <h2 className="font-display text-2xl font-bold text-slate-900 mb-1.5">Featured Courses</h2>
             <p className="text-sm text-slate-500">Hand-picked best sellers for your career growth.</p>
           </div>
-          <a href="#" className="flex items-center gap-1 text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors">
+          <a href="explore" className="flex items-center gap-1 text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors">
             View All
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <polyline points="9 18 15 12 9 6"/>

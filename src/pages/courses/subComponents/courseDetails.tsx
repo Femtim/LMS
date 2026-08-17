@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import type { Course } from "../../../types";
 import Curriculum from "./Curriculum";
-import Footer from "../../ui/Footer";
+import Footer from "../../../components/ui/Footer";
 
 function StarIcons({ rating }: { rating: number }) {
   return (
@@ -254,7 +254,8 @@ export default function CourseDetailPage({ course }: CourseDetailPageProps) {
                 </div>
 
                 <button
-                  onClick={() => navigate(`/payment/${course.id}`)}
+                  // onClick={() => navigate(`/payment/${course.id}`)}
+                  onClick={() => navigate(`/signup`)}
                   className="w-full py-3.5 rounded-xl text-white font-bold text-sm cursor-pointer transition-all duration-200 border-none mb-2 bg-blue-600 hover:bg-blue-500"
                 >
                   Enroll Now
