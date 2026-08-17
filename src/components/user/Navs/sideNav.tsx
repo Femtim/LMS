@@ -1,39 +1,35 @@
 import {
-  Calendar,
-  FileText,
-  LayoutGrid,
-  Settings,
-  Trophy
+  Settings
 } from "lucide-react";
+import { NavLink } from "react-router-dom";
 
 const sidebarLinks = [
-  { icon: LayoutGrid, label: "Dashboard", active: true },
-  { icon: FileText, label: "My Courses", active: false },
-  { icon: Calendar, label: "Schedule", active: false },
-  { icon: Trophy, label: "Achievements", active: false },
+  { to: "/dashboard", label: "Dashboard" },
+  { to: "/myCourses", label: "My Courses" },
+  { to: "/schedule", label: "Schedule" },
+  { to: "/achievements", label: "Achievements" },
 ];
 
 function Sidebar() {
   return (
     <aside className="hidden w-60 shrink-0 flex-col justify-between border-r border-slate-200 bg-white px-4 py-6 lg:flex">
       <div>
-        <p className="mb-3 px-2 text-xs font-semibold tracking-wider text-slate-400">
+        <p className="mb-3 px-2 text-s font-semibold tracking-wider text-slate-400">
           MAIN MENU
         </p>
-        <nav className="flex flex-col gap-1">
-          {sidebarLinks.map(({ icon: Icon, label, active }) => (
-            <a
-              key={label}
-              href="#"
-              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] font-medium transition-colors ${
-                active
-                  ? "bg-blue-50 text-blue-600"
-                  : "text-slate-600 hover:bg-slate-50"
-              }`}
+        <nav className="flex flex-col gap-2 text-m font-medium text-slate-600 px-4">
+          {sidebarLinks.map((link) => (
+            <NavLink
+              key={link.label}
+              to={link.to}
+              className={({ isActive }) =>
+                isActive
+                  ? "text-blue-600"
+                  : "text-slate-500 hover:text-slate-900"
+              }
             >
-              <Icon className="h-[18px] w-[18px]" />
-              {label}
-            </a>
+              {link.label}
+            </NavLink>
           ))}
         </nav>
       </div>

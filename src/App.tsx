@@ -10,6 +10,10 @@ import PaymentPage from "./components/user/myCourses/PaymentPage";
 import AboutUs from "./pages/aboutUs/AboutUs";
 import MyLearning from "./components/user/myCourses/myCourse";
 import Dashboard from "./components/user/dashboard/dashboard"
+import Achievements from './components/user/achievements/achievements';
+import Library from './components/user/library/library';
+import Messages from './components/user/messages/messages';
+import Schedule from './components/user/schedule/schedule';
 
 
 function InfoPage({ title, description }: { title: string; description: string }) {
@@ -49,10 +53,15 @@ export default function App() {
             />
           }
         />
-        <Route path="/myCourses" element={<MyLearning />} />
+        
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/myCourses" element={<MyLearning />} />
+        <Route path="/achievements" element={<Achievements/>} />
+        <Route path="/library" element={<Library />} />
+        <Route path="/messages" element={<Messages />} />
+        <Route path="/schedule" element={<Schedule />} />
         <Route path="*" element={<Navigate to="/" replace />} />
 
       </Routes>

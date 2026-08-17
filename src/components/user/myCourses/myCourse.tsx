@@ -55,7 +55,7 @@ export default function MyLearning() {
     <div className="mx-auto flex max-w-[1600px]">
       <Sidebar />   
       {/* ── MAIN ── */}
-      <main className="flex-1 max-w-5xl mx-auto px-5 py-10 w-full mt-2">
+      <main className="flex-1 max-w-5xl mx-auto px-5 py-5 w-full">
         {/* Header */}
         <div className="flex items-start justify-between mb-8 flex-wrap gap-4">
           <div>
@@ -66,7 +66,7 @@ export default function MyLearning() {
               My Learning Journey
             </h1>
             <p className="text-gray-500 text-sm m-0 max-w-sm leading-relaxed">
-              Continue where you left off and track your academic progress
+              Continue where you left off and track your academic progress 
               across all enrolled modules.
             </p>
           </div>

@@ -1,10 +1,11 @@
 import { Bell, GraduationCap, Search } from "lucide-react";
+import { NavLink } from "react-router-dom";
 
 const links = [
-    { to : "/dashboard", label: "Dashboard" },
-    { to: "/myCourses", label: "My Courses" },
-    { to: "#", label: "Library" },
-    { to: "#", label: "Messages" },
+  { to: "/dashboard", label: "Dashboard" },
+  { to: "/myCourses", label: "My Courses" },
+  { to: "/library", label: "Library" },
+  { to: "/messages", label: "Messages" },
 ];
 
 function TopNav() {
@@ -19,17 +20,17 @@ function TopNav() {
         </a>
         <nav className="hidden items-center gap-8 text-[15px] font-medium md:flex">
           {links.map((link) => (
-            <a
+            <NavLink
               key={link.label}
-              href={link.to}
-              className={
-                link.label === "Dashboard"
+              to={link.to}
+              className={({ isActive }) =>
+                isActive
                   ? "text-blue-600"
                   : "text-slate-500 hover:text-slate-900"
               }
             >
-              {link.label }
-            </a>
+              {link.label}
+            </NavLink>
           ))}
         </nav>
       </div>
