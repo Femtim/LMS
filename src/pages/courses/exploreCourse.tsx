@@ -6,6 +6,8 @@ import CourseCard from "./subComponents/CourseCard";
 import PaginationBtn from "../../components/ui/paginationBtn";
 import FilterChip from "../../components/ui/FilterChip";
 import Footer from "../../components/ui/Footer";
+import Navbar from "../../components/ui/Navbar";
+
 
 
 
@@ -33,6 +35,7 @@ function ListingPage() {
 
   return (
     <>
+      <Navbar />
       <div className="flex flex-col bg-gray-50">
 
         {/* MAIN */}

@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { COURSES, getEnrolledCourses, updateProgress } from "../../../../types";
-import type { EnrolledCourse } from "../../../../types";
+import { COURSES, getEnrolledCourses, updateProgress } from "../../../types";
+import type { EnrolledCourse } from "../../../types";
 import { ActiveCourseCard } from "./subComponents/ActiveCourseCard";
 import { CompletedCourseRow } from "./subComponents/CompletedCourses";
+import TopNav from "../Navs/topNav";
+import Sidebar from "../Navs/sideNav";
 
 
 // ── MyLearning (main page) ────────────────────────────────────────────────────
@@ -48,24 +50,16 @@ export default function MyLearning() {
     : null;
 
   return (
-    <div
-      className="min-h-screen flex flex-col bg-gray-50"
-      style={{ fontFamily: "'Sora', sans-serif" }}
-    >
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap');
-        * { box-sizing: border-box; }
-        body { margin: 0; }
-      `}</style>
-
+    <>
+    <TopNav />
+    <div className="mx-auto flex max-w-[1600px]">
+      <Sidebar />   
       {/* ── MAIN ── */}
-      <main className="flex-1 max-w-5xl mx-auto px-5 py-10 w-full">
-        
-
+      <main className="flex-1 max-w-5xl mx-auto px-5 py-10 w-full mt-2">
         {/* Header */}
         <div className="flex items-start justify-between mb-8 flex-wrap gap-4">
           <div>
-            <p className="text-blue-600 text-xs font-extrabold uppercase tracking-widest m-0 mb-1">
+            <p className="text-blue-600 text-lg font-extrabold uppercase tracking-widest m-0 mb-1">
               Student Workspace
             </p>
             <h1 className="text-slate-900 text-4xl font-extrabold m-0 mb-2">
@@ -197,5 +191,6 @@ export default function MyLearning() {
         )}
       </main>
     </div>
+    </>
   );
 }
