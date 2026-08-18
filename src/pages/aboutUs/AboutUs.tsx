@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { IconRocket, IconStory, IconCheck, IconGlobe, IconBulb, IconHeart } from "../../components/ui/iconrocket";
 import Footer from "../../components/ui/Footer";
-
+import Navbar from "../../components/ui/Navbar";
 // ── Fonts ─────────────────────────────────────────────────────────────────
 // Tailwind can't fetch remote font files on its own, so this <style> tag is
 // the one piece of non-Tailwind markup left in the file.
@@ -232,7 +232,7 @@ export default function App() {
   return (
     <>
       <FontImport />
-
+      <Navbar />
       <main className="pt-10 p-4">
         <Hero />
         <Mission />

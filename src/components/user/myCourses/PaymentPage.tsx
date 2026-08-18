@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { COURSES, enrollCourse } from "../../../../types";
-import Footer from "../../../ui/Footer";
-import Navbar from "../../../ui/Navbar";
+import { COURSES, enrollCourse } from "../../../types";
+import Footer from "../../ui/Footer";
+import Navbar from "../../ui/Navbar";
 
 function InputField({ label, placeholder, type = "text", value, onChange, hint }: {
   label: string; placeholder: string; type?: string;
