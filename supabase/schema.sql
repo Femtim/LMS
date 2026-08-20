@@ -27,7 +27,18 @@ create trigger on_auth_user_created
 after insert on auth.users
 for each row execute procedure public.handle_new_user();
 
- drop policy if exists "Users can insert their own profile" on public."user";
+insert into public."user" (id, full_name)
+select
+  auth_user.id,
+  coalesce(nullif(trim(auth_user.raw_user_meta_data ->> 'full_name'), ''), 'User')
+from auth.users as auth_user
+where not exists (
+  select 1
+  from public."user" as profile
+  where profile.id = auth_user.id
+);
+
+drop policy if exists "Users can insert their own profile" on public."user";
 create policy "Users can insert their own profile"
 on public."user"
 for insert
