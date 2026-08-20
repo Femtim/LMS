@@ -5,11 +5,15 @@ import SignUpPage from "./pages/Auth/Signup";
 import LoginPage from "./pages/Auth/Login";
 import ListingPage from "./pages/courses/exploreCourse";
 import CourseDetailWrapper from "./pages/courses/subComponents/CourseDetailWrapper";
-import PaymentPage from "./components/user/dashboard/myCourses/PaymentPage";
-import Navbar from "./components/ui/Navbar";
+import PaymentPage from "./components/user/myCourses/PaymentPage";
+// import Navbar from "./components/ui/Navbar";
 import AboutUs from "./pages/aboutUs/AboutUs";
-import MyLearning from "./pages/courses/exploreCourse"
-import UnderDevelopmentDashboard from "./pages/dashboard/UnderDevelopmentDashboard";
+import MyLearning from "./components/user/myCourses/myCourse";
+import Dashboard from "./components/user/dashboard/dashboard"
+import Achievements from './components/user/achievements/achievements';
+import Library from './components/user/library/library';
+import Messages from './components/user/messages/messages';
+import Schedule from './components/user/schedule/schedule';
 
 
 function InfoPage({ title, description }: { title: string; description: string }) {
@@ -29,7 +33,6 @@ function InfoPage({ title, description }: { title: string; description: string }
 export default function App() {
   return (
     <div>
-      <Navbar />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/explore" element={<ListingPage />} />
@@ -50,11 +53,15 @@ export default function App() {
             />
           }
         />
-        <Route path="/myCourses" element={<MyLearning />} />
+        
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/dashboard" element={<UnderDevelopmentDashboard />} />
-
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/myCourses" element={<MyLearning />} />
+        <Route path="/achievements" element={<Achievements/>} />
+        <Route path="/library" element={<Library />} />
+        <Route path="/messages" element={<Messages />} />
+        <Route path="/schedule" element={<Schedule />} />
         <Route path="*" element={<Navigate to="/" replace />} />
 
       </Routes>
