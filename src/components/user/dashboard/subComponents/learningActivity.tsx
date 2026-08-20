@@ -29,7 +29,7 @@ function LearningActivity() {
                 tick={{ fill: "#94a3b8", fontSize: 11, fontWeight: 600 }}
               />
               <Bar dataKey="hours" radius={[4, 4, 4, 4]}>
-                {activityData.map((entry, i) => (
+                {activityData.map((entry) => (
                   <Cell
                     key={entry.day}
                     fill={entry.hours >= 5 ? "#2563eb" : "#bfdbfe"}
