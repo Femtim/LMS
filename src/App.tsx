@@ -9,6 +9,7 @@ import PaymentPage from "./components/user/dashboard/myCourses/PaymentPage";
 import Navbar from "./components/ui/Navbar";
 import AboutUs from "./pages/aboutUs/AboutUs";
 import MyLearning from "./pages/courses/exploreCourse"
+import UnderDevelopmentDashboard from "./pages/dashboard/UnderDevelopmentDashboard";
 
 
 function InfoPage({ title, description }: { title: string; description: string }) {
@@ -52,6 +53,7 @@ export default function App() {
         <Route path="/myCourses" element={<MyLearning />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignUpPage />} />
+        <Route path="/dashboard" element={<UnderDevelopmentDashboard />} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
 

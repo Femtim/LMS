@@ -1,14 +1,62 @@
 import { useState } from "react"; 
-import { BookOpenIcon, EnvelopeIcon, LockIcon, GoogleIcon, CheckBadgeIcon } from "./subComponents/Icon";
+import { useNavigate } from "react-router-dom"
+import { BookOpenIcon, EnvelopeIcon, LockIcon, EyeIcon, GoogleIcon, CheckBadgeIcon } from "./subComponents/Icon";
 import supabase from "../../utils/supabase";
 
 export default function LoginPage() { 
-  const [showPassword] = useState(false); 
+  const [showPassword, setShowPassword] = useState(false); 
   const [form, setForm] = useState({ email: "", password: "" }); 
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => { 
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value })); 
   }; 
+
+  const handleSubmit = async () => {
+    setLoading(true);
+
+    if (!form.email.trim() || !form.password.trim()) {
+      alert("Please enter email and password.");
+      setLoading(false);
+      return;
+    }
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: form.email.trim(),
+      password: form.password,
+    });
+
+    if (error) {
+      alert(error.message);
+      setLoading(false);
+      return;
+    }
+
+    const { data: profileData, error: profileError } = await supabase
+      .from("user")
+      .select("id")
+      .eq("id", data.user?.id)
+      .maybeSingle();
+
+    if (profileError) {
+      alert(profileError.message);
+      setLoading(false);
+      return;
+    }
+
+    if (!profileData) {
+      alert("No profile was found for this account.");
+      setLoading(false);
+      return;
+    }
+
+    // Signed in successfully
+    alert("Signed in successfully.");
+    setLoading(false);
+    setForm({ email: "", password: "" });
+    navigate("/dashboard");
+  };
 
   
  
@@ -21,7 +69,7 @@ relative">
  
         {/* Left panel */} 
         <div 
-          className="w-80 flex-shrink-0 p-8 flex flex-col justify-between relative overflow-hidden" 
+          className="w-80 shrink-0 p-8 flex flex-col justify-between relative overflow-hidden" 
           style={{ 
             background: "linear-gradient(160deg, #c7d7fd 0%, #a5b4fc 20%, #818cf8 50%, #6366f1 75%, #4f46e5 100%)", 
           }} 
@@ -114,16 +162,25 @@ Password?</a>
 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent 
 placeholder-gray-400 text-gray-800" 
                 /> 
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((value) => !value)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  className="absolute right-3 top-1/2 -translate-y-1/2"
+                >
+                  <EyeIcon open={showPassword} />
+                </button>
               </div> 
             </div> 
  
             {/* Sign In */} 
             <button 
               type="button" 
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold 
-py-2.5 rounded-lg transition-colors" 
+              onClick={handleSubmit}
+              disabled={loading}
+              className="w-full bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold py-2.5 rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed" 
             > 
-              Sign In 
+              {loading ? "Signing In..." : "Sign In"}
             </button> 
  
             {/* Divider */} 
@@ -142,6 +199,12 @@ rounded-lg py-2.5 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
               <GoogleIcon /> 
               Sign in with Google 
             </button> 
+
+            <div className="text-center mt-3">
+              <p className="text-sm text-gray-600">
+                Don't have an account? <a href="/signup" className="text-blue-500 font-medium hover:underline">Create one</a>
+              </p>
+            </div>
           </div> 
  
           {/* Footer links */} 

@@ -21,33 +21,47 @@ export default function SignUpPage() {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  function generateUUID() {
-  return crypto.randomUUID();
-}
-
   const handleSubmit = async () => {
     setLoading(true);
-    
+
     if (!form.name.trim() || !form.email.trim() || !form.password.trim()) {
       alert("Please fill in full name, email, and password.");
+      setLoading(false);
       return;
     }
 
-    const { error } = await supabase.from("users").insert({
-      id: generateUUID(),
-      name: form.name.trim(),
+    if (form.password.length < 8) {
+      alert("Password must be at least 8 characters.");
+      setLoading(false);
+      return;
+    }
+
+    // Create auth user with Supabase Auth
+    const { data, error: signUpError } = await supabase.auth.signUp({
       email: form.email.trim(),
       password: form.password,
-      user_type: 'user'
+      options: {
+        data: { full_name: form.name.trim() },
+      },
     });
 
-    if (error) {
-      alert(error.message);
+    if (signUpError) {
+      alert(signUpError.message);
+      setLoading(false);
       return;
     }
 
-    
-    alert("Account created successfully!");
+    if (!data.user) {
+      alert("User account was not created.");
+      setLoading(false);
+      return;
+    }
+
+    alert(
+      data.session
+        ? "Account created successfully."
+        : "Account created successfully. Please check your email to confirm your account.",
+    );
     setLoading(false);
     setForm({ name: "", email: "", password: "" });
   };
@@ -177,7 +191,7 @@ export default function SignUpPage() {
 
           {/* Login link */}
           <p className="text-center text-xs text-gray-500 mt-5">
-            Already have an account? <a href="#" className="text-blue-500 font-medium hover:underline">Log in</a>
+            Already have an account? <a href="/login" className="text-blue-500 font-medium hover:underline">Log in</a>
           </p>
         </div>
       </main>
