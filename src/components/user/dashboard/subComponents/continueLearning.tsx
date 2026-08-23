@@ -54,7 +54,7 @@ function ContinueLearning() {
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-xl font-bold text-slate-900">Continue Learning</h2>
         <a
-          href="#"
+          href="/myCourses"
           className="text-sm font-semibold text-blue-600 hover:underline"
         >
           View all
