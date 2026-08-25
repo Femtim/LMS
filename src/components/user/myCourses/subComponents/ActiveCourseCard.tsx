@@ -1,5 +1,5 @@
 // import { COURSES, getEnrolledCourses, updateProgress } from "../../../../types";
-import type { EnrolledCourse, Course } from "../../../../../types";
+import type { EnrolledCourse, Course } from "../../../../types";
 import {ProgressBar} from "./ProgressBar";
 
 
@@ -23,8 +23,6 @@ export function ActiveCourseCard({
   onSimulateProgress: () => void;
 }) {
   const catColor = categoryColors[course.category] ?? { bg: "#2563eb", text: "#fff" };
-  const isAlmostDone = enrolled.progress >= 80;
-
   return (
     <div
       className="bg-white rounded-2xl overflow-hidden flex flex-col transition-shadow hover:shadow-lg"

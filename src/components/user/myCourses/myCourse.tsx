@@ -1,31 +1,28 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { COURSES, getEnrolledCourses, updateProgress } from "../../../types";
-import type { EnrolledCourse } from "../../../types";
+import { useNavigate } from "react-router-dom";
+import { getEnrolledCourses, updateProgress } from "../../../types";
+import type { Course, EnrolledCourse } from "../../../types";
+import { getCourses, toCourse } from "../../../services/courseService";
 import { ActiveCourseCard } from "./subComponents/ActiveCourseCard";
 import { CompletedCourseRow } from "./subComponents/CompletedCourses";
 import TopNav from "../Navs/topNav";
 import Sidebar from "../Navs/sideNav";
-
-
 // ── MyLearning (main page) ────────────────────────────────────────────────────
 type FilterTab = "All Courses" | "In Progress" | "Completed";
 
 export default function MyLearning() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const state = location.state as {
-    newCourseId?: number;
-    email?: string;
-  } | null;
 
   const [tab, setTab] = useState<FilterTab>("All Courses");
   const [enrolled, setEnrolled] = useState<EnrolledCourse[]>([]);
-  const [showBanner, setShowBanner] = useState(!!state?.newCourseId);
+  const [courses, setCourses] = useState<Course[]>([]);
 
   // Re-read enrollment store on mount and whenever state changes
   useEffect(() => {
     setEnrolled(getEnrolledCourses());
+    getCourses().then((data) => {
+      setCourses(data.map(toCourse));
+    }).catch((error) => console.error("Failed to fetch courses:", error));
   }, []);
 
   const handleSimulateProgress = (courseId: number) => {
@@ -45,14 +42,10 @@ export default function MyLearning() {
   const visibleCompleted =
     tab === "In Progress" ? [] : tab === "All Courses" ? completed : completed;
 
-  const newCourse = state?.newCourseId
-    ? COURSES.find((c) => c.id === state.newCourseId)
-    : null;
-
   return (
     <>
     <TopNav />
-    <div className="mx-auto flex max-w-[1600px]">
+    <div className="mx-auto flex max-w-400">
       <Sidebar />   
       {/* ── MAIN ── */}
       <main className="flex-1 max-w-5xl mx-auto px-5 py-5 w-full">
@@ -113,7 +106,7 @@ export default function MyLearning() {
               Enroll in a course to start your learning journey.
             </p>
             <button
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/explore")}
               className="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm px-6 py-3 rounded-xl border-none cursor-pointer transition-colors shadow-md shadow-blue-600/20"
             >
               Browse Courses
@@ -130,7 +123,7 @@ export default function MyLearning() {
             }}
           >
             {visibleActive.map((e) => {
-              const course = COURSES.find((c) => c.id === e.courseId);
+              const course = courses.find((c) => c.id === e.courseId);
               if (!course) return null;
               return (
                 <ActiveCourseCard
@@ -159,7 +152,7 @@ export default function MyLearning() {
             </div>
             <div className="grid grid-cols-2 gap-5">
               {visibleCompleted.map((e) => {
-                const course = COURSES.find((c) => c.id === e.courseId);
+                const course = courses.find((c) => c.id === e.courseId);
                 if (!course) return null;
                 return <CompletedCourseRow key={e.courseId} course={course} />;
               })}
@@ -182,7 +175,7 @@ export default function MyLearning() {
         {enrolled.length > 0 && (
           <div className="mt-12 text-center">
             <button
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/explore")}
               className="bg-white border border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-gray-700 font-semibold text-sm px-6 py-3 rounded-xl cursor-pointer transition-all shadow-sm"
             >
               Browse More Courses →

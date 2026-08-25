@@ -1,4 +1,4 @@
-import type { Course } from "../../../../../types";
+import type { Course } from "../../../../types";
 
 
 export function CompletedCourseRow({ course }: { course: Course }) {

@@ -1,4 +1,6 @@
 import React from 'react'
+// import { useEffect } from "react";
+// import { seedCourses } from "./seedCourses";
 import HomePage  from './pages/homePage/HomePage'
 import { Navigate, Route, Routes } from "react-router-dom";
 import SignUpPage from "./pages/Auth/Signup";
@@ -17,6 +19,7 @@ import Schedule from './components/user/schedule/schedule';
 
 
 function InfoPage({ title, description }: { title: string; description: string }) {
+
   return (
     <section className="mx-auto flex min-h-[calc(100vh-81px)] w-full max-w-5xl items-center px-4 py-16 sm:px-6 lg:px-8">
       <div className="max-w-2xl rounded-3xl border border-slate-200 bg-white p-10 shadow-sm">
