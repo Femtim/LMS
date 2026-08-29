@@ -3,6 +3,7 @@ import type { Course } from "../../../../types";
 interface CompletedCourseRowProps {
   course: Course;
   completedAt?: string | null;
+  completionNumber: number;
   onRevisit: () => void;
   onViewCertificate?: () => void;
 }
@@ -18,9 +19,16 @@ function formatCompletedDate(dateStr?: string | null) {
   });
 }
 
+function ordinal(n: number) {
+  const s = ["th", "st", "nd", "rd"];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] ?? s[v] ?? s[0]);
+}
+
 export function CompletedCourseRow({
   course,
   completedAt,
+  completionNumber,
   onRevisit,
   onViewCertificate,
 }: CompletedCourseRowProps) {
@@ -51,6 +59,10 @@ export function CompletedCourseRow({
         <p className="text-gray-500 text-xs m-0">
           Instructor: {course.instructor?.name ?? "—"}
           {formattedDate && <> · Completed {formattedDate}</>}
+          {" · "}
+          <span className="font-semibold text-gray-600">
+            Your {ordinal(completionNumber)} completed course
+          </span>
         </p>
         <div className="flex items-center gap-4 mt-2">
           <button
