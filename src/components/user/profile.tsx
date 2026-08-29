@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { X, Camera, Loader2, Check } from "lucide-react";
-import supabase from "../../utils/supabase"; 
+import supabase  from "../.././/utils/supabase"; 
 import type { User } from "@supabase/supabase-js";
 
 interface ProfileData {

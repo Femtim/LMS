@@ -1,21 +1,19 @@
-// import { COURSES, getEnrolledCourses, updateProgress } from "../../../../types";
-import type { EnrolledCourse, Course } from "../../../../../types";
-import {ProgressBar} from "./ProgressBar";
+import type { EnrolledCourse, Course } from "../../../../types";
+import { ProgressBar } from "./ProgressBar";
 
-
-// ── Category color map ────────────────────────────────────────────────────────
- const categoryColors: Record<string, { bg: string; text: string }> = {
+// ── Category color map ────────────────────────────────────────────────────
+const categoryColors: Record<string, { bg: string; text: string }> = {
   Development: { bg: "#2563eb", text: "#fff" },
-  Design:      { bg: "#7c3aed", text: "#fff" },
-  Business:    { bg: "#059669", text: "#fff" },
-  Marketing:   { bg: "#d97706", text: "#fff" },
+  Design: { bg: "#7c3aed", text: "#fff" },
+  Business: { bg: "#059669", text: "#fff" },
+  Marketing: { bg: "#d97706", text: "#fff" },
 };
 
-
-
-
 export function ActiveCourseCard({
-  enrolled, course, onContinue, onSimulateProgress,
+  enrolled,
+  course,
+  onContinue,
+  onSimulateProgress,
 }: {
   enrolled: EnrolledCourse;
   course: Course;
@@ -41,6 +39,13 @@ export function ActiveCourseCard({
         >
           {course.category}
         </span>
+
+        {/* Almost done badge */}
+        {isAlmostDone && (
+          <span className="absolute top-3 right-3 flex items-center gap-1 text-[11px] font-extrabold uppercase tracking-wide px-2.5 py-1 rounded-full bg-amber-400 text-amber-950 shadow-sm">
+            🔥 Almost there
+          </span>
+        )}
       </div>
 
       {/* Body */}
@@ -56,7 +61,7 @@ export function ActiveCourseCard({
             <span className="text-gray-500 text-xs font-semibold uppercase tracking-widest">Current Progress</span>
             <span className="font-extrabold text-sm" style={{ color: catColor.bg }}>{enrolled.progress}%</span>
           </div>
-          <ProgressBar value={enrolled.progress} color={catColor.bg} />
+          <ProgressBar value={enrolled.progress} color={isAlmostDone ? "#f59e0b" : catColor.bg} />
         </div>
 
         {/* Actions */}
@@ -66,7 +71,7 @@ export function ActiveCourseCard({
             className="flex-1 py-2.5 rounded-xl text-white font-bold text-sm border-none cursor-pointer flex items-center justify-center gap-2 transition-opacity hover:opacity-90 shadow-sm"
             style={{ background: catColor.bg }}
           >
-            Continue Lesson
+            {isAlmostDone ? "Finish Course" : "Continue Lesson"}
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
               <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>

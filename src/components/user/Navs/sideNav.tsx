@@ -5,6 +5,7 @@ import { NavLink } from "react-router-dom";
 
 const sidebarLinks = [
   { to: "/dashboard", label: "Dashboard" },
+  { to: "/explore", label: "Course Catalog" },
   { to: "/myCourses", label: "My Courses" },
   { to: "/schedule", label: "Schedule" },
   { to: "/achievements", label: "Achievements" },
@@ -51,7 +52,7 @@ function Sidebar() {
         </div>
 
         <a
-          href="#"
+          href="/settings"
           className="flex items-center gap-3 px-3 py-2 text-[15px] font-medium text-slate-600 hover:text-slate-900"
         >
           <Settings className="h-[18px] w-[18px]" />
