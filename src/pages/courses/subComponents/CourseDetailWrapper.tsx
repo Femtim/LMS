@@ -1,13 +1,25 @@
 
 import { useParams, useNavigate } from "react-router-dom";
-import { COURSES } from "../../../types";
+import { useEffect, useState } from "react";
+import { getCourseById } from "../../../services/courseService";
+import type { Course } from "../../../types";
 import CourseDetailPage from "./courseDetails";
 
 export default function CourseDetailWrapper() {
   const { id }    = useParams<{ id: string }>();
   const navigate  = useNavigate();
 
-  const course = COURSES.find((c) => c.id === Number(id));
+  const [course, setCourse] = useState<Course | null>(null);
+
+  useEffect(() => {
+    if (id) {
+      getCourseById(Number(id)).then(setCourse).catch(() => setCourse(null));
+    }
+  }, [id]);
+
+  if (!course && id) {
+    return <div className="min-h-screen flex items-center justify-center bg-gray-50">Loading course...</div>;
+  }
 
   if (!course) {
     return (

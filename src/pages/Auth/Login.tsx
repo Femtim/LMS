@@ -1,6 +1,5 @@
-import { useState } from "react"; 
+import { useState, type ChangeEvent } from "react"; 
 import { useNavigate } from "react-router-dom"
-import Dashboard from "../../components/user/dashboard/dashboard";
 import { BookOpenIcon, EnvelopeIcon, LockIcon, EyeIcon, GoogleIcon, CheckBadgeIcon } from "./subComponents/Icon";
 import supabase from "../../utils/supabase";
 
@@ -10,7 +9,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
  
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => { 
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => { 
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value })); 
   }; 
 

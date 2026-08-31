@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { COURSES } from "../../../types";
+import type { Course } from "../../../types";
+import { getCourseById } from "../../../services/courseService";
 import Footer from "../../ui/Footer";
 import Navbar from "../../ui/Navbar";
 import supabase from "../../../utils/supabase";
@@ -45,7 +46,13 @@ function CheckIcon() {
 export default function PaymentPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const course = COURSES.find((c) => c.id === Number(id));
+  const [course, setCourse] = useState<Course | null>(null);
+
+  useEffect(() => {
+    if (id) {
+      getCourseById(Number(id)).then(setCourse).catch(() => setCourse(null));
+    }
+  }, [id]);
 
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);

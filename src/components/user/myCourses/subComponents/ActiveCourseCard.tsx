@@ -21,7 +21,7 @@ export function ActiveCourseCard({
   onSimulateProgress: () => void;
 }) {
   const catColor = categoryColors[course.category] ?? { bg: "#2563eb", text: "#fff" };
-  const isAlmostDone = enrolled.progress >= 80;
+  const isAlmostDone = enrolled.progress >= 80 && enrolled.progress < 100;
 
   return (
     <div
