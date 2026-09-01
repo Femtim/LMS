@@ -18,7 +18,7 @@ interface EnrolledCourse {
 
 type FilterTab = "All Courses" | "In Progress" | "Completed";
 
-// ── MyLearning (main page) ──────────────────────────────────────────────
+// ── MyLearning (main page) 
 export default function MyLearning() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -119,28 +119,7 @@ export default function MyLearning() {
         <Sidebar />
         {/* ── MAIN ── */}
         <main className="flex-1 max-w-5xl mx-auto px-5 py-5 w-full">
-          {/* New enrollment banner */}
-          {showBanner && newCourse && (
-            <div className="mb-6 flex items-center justify-between gap-4 rounded-2xl border border-green-200 bg-green-50 px-5 py-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-green-100">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                    <path d="M5 13l4 4L19 7" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </div>
-                <p className="text-sm text-green-800">
-                  <span className="font-bold">You're enrolled!</span> "{newCourse.title}" has been added to your courses.
-                </p>
-              </div>
-              <button
-                onClick={() => setShowBanner(false)}
-                aria-label="Dismiss"
-                className="shrink-0 text-green-700 hover:text-green-900 bg-transparent border-none cursor-pointer text-lg leading-none"
-              >
-                ×
-              </button>
-            </div>
-          )}
+          
 
           {/* Header */}
           <div className="flex items-start justify-between mb-8 flex-wrap gap-4">
@@ -178,6 +157,29 @@ export default function MyLearning() {
               )}
             </div>
           </div>
+
+          {/* New enrollment banner */}
+          {showBanner && newCourse && (
+            <div className="mb-6 flex items-center justify-between gap-4 rounded-2xl border border-green-200 bg-green-50 px-5 py-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-green-100">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <path d="M5 13l4 4L19 7" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+                <p className="text-sm text-green-800">
+                  <span className="font-bold">You're enrolled!</span> "{newCourse.title}" has been added to your courses.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowBanner(false)}
+                aria-label="Dismiss"
+                className="shrink-0 text-green-700 hover:text-green-900 bg-transparent border-none cursor-pointer text-lg leading-none"
+              >
+                ×
+              </button>
+            </div>
+          )}
 
           {/* Loading state */}
           {loading && (
