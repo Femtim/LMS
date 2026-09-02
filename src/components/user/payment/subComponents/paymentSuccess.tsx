@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { COURSES } from "../../../../types";
+import { getCourseById } from "../../../../services/courseService";
 import supabase from "../../../../utils/supabase";
 
 type Status = "verifying" | "success" | "error";
@@ -36,12 +36,12 @@ export default function PaymentSuccess() {
 
       setStatus("success");
 
-      const course = COURSES.find((c) => String(c.id) === String(data.courseId));
+      const course = await getCourseById(Number(data.courseId));
 
       // Brief pause so the success state is actually visible before redirecting.
       setTimeout(() => {
         navigate("/myCourses", {
-          state: { newCourseId: course?.id ?? data.courseId },
+          state: { newCourseId: course?.id ?? Number(data.courseId) },
         });
       }, 1200);
     };

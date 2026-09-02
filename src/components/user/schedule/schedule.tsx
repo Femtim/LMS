@@ -1,4 +1,3 @@
-import React from "react";
 import TopNav from '../Navs/topNav'
 import Sidebar from '../Navs/sideNav'
 

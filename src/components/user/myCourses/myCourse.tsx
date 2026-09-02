@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { COURSES } from "../../../types";
+import type { Course } from "../../../types";
+import { getCourses } from "../../../services/courseService";
 import { ActiveCourseCard } from "./subComponents/ActiveCourseCard";
 import { CompletedCourseRow } from "./subComponents/CompletedCourses";
 import TopNav from "../Navs/topNav";
@@ -10,9 +11,11 @@ import supabase from "../../../utils/supabase";
 // ── Types ────────────────────────────────────────────────────────────────
 // Matches the my_courses table: course_id, progress_percent, status, completed_at
 interface EnrolledCourse {
-  courseId: string;
+  courseId: number;
+  enrolledAt: string;
   progress: number;
   completed: boolean;
+  certificateReady: boolean;
   completedAt: string | null;
 }
 
@@ -29,9 +32,20 @@ export default function MyLearning() {
 
   const [tab, setTab] = useState<FilterTab>("All Courses");
   const [enrolled, setEnrolled] = useState<EnrolledCourse[]>([]);
+  const [courseCatalog, setCourseCatalog] = useState<Record<string, Course>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showBanner, setShowBanner] = useState(!!state?.newCourseId);
+
+  useEffect(() => {
+    getCourses()
+      .then((courses) => {
+        setCourseCatalog(
+          Object.fromEntries(courses.map((course) => [String(course.id), course])),
+        );
+      })
+      .catch(() => setCourseCatalog({}));
+  }, []);
 
   const fetchEnrollments = async () => {
     setLoading(true);
@@ -61,9 +75,11 @@ export default function MyLearning() {
 
     setEnrolled(
       (data ?? []).map((row) => ({
-        courseId: row.course_id,
+        courseId: Number(row.course_id),
+        enrolledAt: row.enrolled_at ?? new Date().toISOString(),
         progress: row.progress_percent,
         completed: row.status === "completed",
+        certificateReady: row.status === "completed",
         completedAt: row.completed_at,
       })),
     );
@@ -109,7 +125,7 @@ export default function MyLearning() {
     tab === "In Progress" ? [] : tab === "All Courses" ? completed : completed;
 
   const newCourse = state?.newCourseId
-    ? COURSES.find((c) => String(c.id) === String(state.newCourseId))
+    ? courseCatalog[String(state.newCourseId)] ?? null
     : null;
 
   return (
@@ -234,9 +250,7 @@ export default function MyLearning() {
                   }}
                 >
                   {visibleActive.map((e) => {
-                    const course = COURSES.find(
-                      (c) => String(c.id) === e.courseId,
-                    );
+                    const course = courseCatalog[e.courseId];
                     if (!course) return null;
                     return (
                       <ActiveCourseCard
@@ -267,9 +281,7 @@ export default function MyLearning() {
                   </div>
                   <div className="grid grid-cols-2 gap-5">
                     {visibleCompleted.map((e, index) => {
-                      const course = COURSES.find(
-                        (c) => String(c.id) === e.courseId,
-                      );
+                      const course = courseCatalog[e.courseId];
                       if (!course) return null;
                       return (
                         <CompletedCourseRow

@@ -1,12 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { CATEGORIES, LEVELS } from "../../types";
+import { getCourses } from "../../services/courseService";
 import { useNavigate } from "react-router-dom";
-import { COURSES, CATEGORIES, LEVELS } from "../../types";
 import type { Category, Level } from "../../types";
 import CourseCard from "./subComponents/CourseCard";
 import PaginationBtn from "../../components/ui/paginationBtn";
 import FilterChip from "../../components/ui/FilterChip";
 import Footer from "../../components/ui/Footer";
 import Navbar from "../../components/ui/Navbar";
+
 
 
 
@@ -18,16 +20,46 @@ function ListingPage() {
   const [activeCategory, setActiveCategory] = useState<Category>("All Categories");
   const [activeLevel, setActiveLevel]       = useState<Level>("All");
   const [currentPage, setCurrentPage]       = useState(1);
+
+  const [courses, setCourses] = useState<any[]>([]);
+const [loading, setLoading] = useState(true);
+
   const COURSES_PER_PAGE = 8;
 
-  const filtered = COURSES.filter((c) => {
-    const matchCat    = activeCategory === "All Categories" || c.category === activeCategory;
-    const matchLvl    = activeLevel === "All" || c.level === activeLevel;
-    const matchSearch = search === "" ||
-      c.title.toLowerCase().includes(search.toLowerCase()) ||
-      c.category.toLowerCase().includes(search.toLowerCase());
-    return matchCat && matchLvl && matchSearch;
-  });
+useEffect(() => {
+  async function fetchCourses() {
+    try {
+      const data = await getCourses();
+
+      console.log("Courses from Supabase:", data);
+
+      setCourses(data || []);
+    } catch (error) {
+      console.error("Failed to fetch courses:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  fetchCourses();
+}, []);
+
+  const filtered = courses.filter((c) => {
+  const matchCategory =
+    activeCategory === "All Categories" ||
+    c.category === activeCategory;
+
+  const matchLevel =
+    activeLevel === "All" ||
+    c.level === activeLevel;
+
+  const matchSearch =
+    search === "" ||
+    c.title.toLowerCase().includes(search.toLowerCase()) ||
+    c.category?.toLowerCase().includes(search.toLowerCase());
+
+  return matchCategory && matchLevel && matchSearch;
+});
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / COURSES_PER_PAGE));
   const safePage   = Math.min(currentPage, totalPages);
@@ -76,7 +108,11 @@ function ListingPage() {
           </div>
 
           {/* Grid */}
-          {paginated.length > 0 ? (
+         {loading ? (
+  <div className="text-center py-16 text-gray-400 text-sm">
+    Loading courses...
+  </div>
+) : paginated.length > 0 ? (
             <div className="grid gap-5 mb-10" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))" }}>
               {paginated.map((course) => (
                 <CourseCard
