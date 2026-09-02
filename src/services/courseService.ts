@@ -2,7 +2,7 @@ import supabase from "../utils/supabase";
 import type { Course } from "../types";
 
 export type DatabaseCourse = {
-  id: number;
+  id: string; // uuid
   title: string;
   category: Course["category"] | null;
   level: Course["level"] | null;
@@ -15,7 +15,7 @@ export type DatabaseCourse = {
 
 export function toCourse(course: DatabaseCourse): Course {
   return {
-    id: Number(course.id),
+    id: course.id, // keep as string — this is a uuid, not a number
     title: course.title,
     category: course.category ?? "Development",
     level: course.level ?? "Beginner",
@@ -49,7 +49,7 @@ export async function getCourses() {
   );
 }
 
-export async function getCourseById(id: number): Promise<Course | null> {
+export async function getCourseById(id: string): Promise<Course | null> {
   const { data, error } = await supabase
     .from("courses")
     .select("*")

@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getCourseById } from "../../../services/courseService";
@@ -13,7 +12,7 @@ export default function CourseDetailWrapper() {
 
   useEffect(() => {
     if (id) {
-      getCourseById(Number(id)).then(setCourse).catch(() => setCourse(null));
+      getCourseById(id).then(setCourse).catch(() => setCourse(null));
     }
   }, [id]);
 

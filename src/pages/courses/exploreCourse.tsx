@@ -10,9 +10,6 @@ import Footer from "../../components/ui/Footer";
 import Navbar from "../../components/ui/Navbar";
 
 
-
-
-
 function ListingPage() {
   const navigate = useNavigate();
 

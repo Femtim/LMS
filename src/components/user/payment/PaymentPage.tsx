@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import type { Course } from "../../../types";
 import { getCourseById } from "../../../services/courseService";
+import type { Course } from "../../../types";
 import Footer from "../../ui/Footer";
 import Navbar from "../../ui/Navbar";
 import supabase from "../../../utils/supabase";
@@ -48,23 +48,21 @@ export default function PaymentPage() {
   const navigate = useNavigate();
 
   const [course, setCourse] = useState<Course | null>(null);
-  const [isLoadingCourse, setIsLoadingCourse] = useState(true);
+  const [courseLoading, setCourseLoading] = useState(true);
+
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) {
-      setCourse(null);
-      setIsLoadingCourse(false);
+      setCourseLoading(false);
       return;
     }
-
-    setIsLoadingCourse(true);
-    getCourseById(Number(id))
-      .then((result) => { setCourse(result); })
+    getCourseById(id)
+      .then(setCourse)
       .catch(() => setCourse(null))
-      .finally(() => setIsLoadingCourse(false));
+      .finally(() => setCourseLoading(false));
   }, [id]);
 
   const allFilled = email.includes("@");
@@ -110,9 +108,9 @@ export default function PaymentPage() {
     window.location.href = data.authorization_url;
   };
 
-  if (isLoadingCourse) {
+  if (courseLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 flex-col gap-4">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <p className="text-gray-500 text-sm">Loading course...</p>
       </div>
     );

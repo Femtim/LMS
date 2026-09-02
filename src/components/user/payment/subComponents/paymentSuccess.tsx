@@ -36,12 +36,13 @@ export default function PaymentSuccess() {
 
       setStatus("success");
 
-      const course = await getCourseById(Number(data.courseId));
+      // courseId is a uuid string — never wrap it in Number().
+      const course = await getCourseById(data.courseId).catch(() => null);
 
       // Brief pause so the success state is actually visible before redirecting.
       setTimeout(() => {
         navigate("/myCourses", {
-          state: { newCourseId: course?.id ?? Number(data.courseId) },
+          state: { newCourseId: course?.id ?? data.courseId },
         });
       }, 1200);
     };

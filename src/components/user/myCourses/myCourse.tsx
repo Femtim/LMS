@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import type { Course } from "../../../types";
-import { getCourses } from "../../../services/courseService";
+import { toCourse } from "../../../services/courseService";
+import type { DatabaseCourse } from "../../../services/courseService";
 import { ActiveCourseCard } from "./subComponents/ActiveCourseCard";
 import { CompletedCourseRow } from "./subComponents/CompletedCourses";
 import TopNav from "../Navs/topNav";
@@ -9,43 +10,30 @@ import Sidebar from "../Navs/sideNav";
 import supabase from "../../../utils/supabase";
 
 // ── Types ────────────────────────────────────────────────────────────────
-// Matches the my_courses table: course_id, progress_percent, status, completed_at
 interface EnrolledCourse {
-  courseId: number;
-  enrolledAt: string;
+  courseId: string;
   progress: number;
   completed: boolean;
-  certificateReady: boolean;
   completedAt: string | null;
+  course: Course; // now comes from the join instead of a local lookup
 }
 
 type FilterTab = "All Courses" | "In Progress" | "Completed";
 
-// ── MyLearning (main page) 
+// ── MyLearning (main page) ──────────────────────────────────────────────
 export default function MyLearning() {
   const navigate = useNavigate();
   const location = useLocation();
   const state = location.state as {
-    newCourseId?: number | string;
+    newCourseId?: string;
     email?: string;
   } | null;
 
   const [tab, setTab] = useState<FilterTab>("All Courses");
   const [enrolled, setEnrolled] = useState<EnrolledCourse[]>([]);
-  const [courseCatalog, setCourseCatalog] = useState<Record<string, Course>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showBanner, setShowBanner] = useState(!!state?.newCourseId);
-
-  useEffect(() => {
-    getCourses()
-      .then((courses) => {
-        setCourseCatalog(
-          Object.fromEntries(courses.map((course) => [String(course.id), course])),
-        );
-      })
-      .catch(() => setCourseCatalog({}));
-  }, []);
 
   const fetchEnrollments = async () => {
     setLoading(true);
@@ -61,9 +49,29 @@ export default function MyLearning() {
       return;
     }
 
+    // Single query joining my_courses with its related courses row.
+    // Requires the foreign key: my_courses.course_id -> courses.id
     const { data, error: fetchError } = await supabase
       .from("my_courses")
-      .select("course_id, progress_percent, status, completed_at")
+      .select(
+        `
+        course_id,
+        progress_percent,
+        status,
+        completed_at,
+        courses (
+          id,
+          title,
+          category,
+          level,
+          description,
+          thumbnail_url,
+          price,
+          published,
+          created_at
+        )
+      `,
+      )
       .eq("user_id", user.id)
       .order("enrolled_at", { ascending: false });
 
@@ -74,14 +82,15 @@ export default function MyLearning() {
     }
 
     setEnrolled(
-      (data ?? []).map((row) => ({
-        courseId: Number(row.course_id),
-        enrolledAt: row.enrolled_at ?? new Date().toISOString(),
-        progress: row.progress_percent,
-        completed: row.status === "completed",
-        certificateReady: row.status === "completed",
-        completedAt: row.completed_at,
-      })),
+      (data ?? [])
+        .filter((row) => row.courses) // skip rows whose course was deleted
+        .map((row) => ({
+          courseId: row.course_id,
+          progress: row.progress_percent,
+          completed: row.status === "completed",
+          completedAt: row.completed_at,
+          course: toCourse(row.courses as DatabaseCourse),
+        })),
     );
     setLoading(false);
   };
@@ -90,10 +99,10 @@ export default function MyLearning() {
     fetchEnrollments();
   }, []);
 
-  // Demo/testing helper — bumps progress by 10%. Wire this to real lesson
-  // completion events instead of a button once that flow exists.
+  // Demo/testing helper — bumps progress by 10%.
   const handleSimulateProgress = async (courseId: string) => {
-    const current = enrolled.find((e) => e.courseId === courseId)?.progress ?? 0;
+    const current =
+      enrolled.find((e) => e.courseId === courseId)?.progress ?? 0;
     const next = Math.min(current + 10, 100);
 
     const { error: updateError } = await supabase
@@ -115,7 +124,9 @@ export default function MyLearning() {
     .sort((a, b) => {
       if (!a.completedAt) return 1;
       if (!b.completedAt) return -1;
-      return new Date(a.completedAt).getTime() - new Date(b.completedAt).getTime();
+      return (
+        new Date(a.completedAt).getTime() - new Date(b.completedAt).getTime()
+      );
     });
 
   const visibleActive =
@@ -125,7 +136,7 @@ export default function MyLearning() {
     tab === "In Progress" ? [] : tab === "All Courses" ? completed : completed;
 
   const newCourse = state?.newCourseId
-    ? courseCatalog[String(state.newCourseId)] ?? null
+    ? enrolled.find((e) => e.courseId === state.newCourseId)?.course
     : null;
 
   return (
@@ -135,15 +146,13 @@ export default function MyLearning() {
         <Sidebar />
         {/* ── MAIN ── */}
         <main className="flex-1 max-w-5xl mx-auto px-5 py-5 w-full">
-          
-
           {/* Header */}
           <div className="flex items-start justify-between mb-8 flex-wrap gap-4">
             <div>
-              <p className="text-blue-600 text-lg font-extrabold uppercase tracking-widest m-0 mb-1">
+              <p className="text-blue-600 text-3xl font-extrabold uppercase tracking-widest m-0 mb-1">
                 Student Workspace
               </p>
-              <h1 className="text-slate-900 text-4xl font-extrabold m-0 mb-2">
+              <h1 className="text-slate-900 text-2xl font-extrabold m-0 mb-2">
                 My Learning Journey
               </h1>
               <p className="text-gray-500 text-sm m-0 max-w-sm leading-relaxed">
@@ -164,7 +173,9 @@ export default function MyLearning() {
                       background: tab === t ? "#2563eb" : "transparent",
                       color: tab === t ? "#fff" : "#6b7280",
                       boxShadow:
-                        tab === t ? "0 2px 10px rgba(37, 99, 235, 0.2)" : "none",
+                        tab === t
+                          ? "0 2px 10px rgba(37, 99, 235, 0.2)"
+                          : "none",
                     }}
                   >
                     {t}
@@ -180,11 +191,18 @@ export default function MyLearning() {
               <div className="flex items-center gap-3">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-green-100">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                    <path d="M5 13l4 4L19 7" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                    <path
+                      d="M5 13l4 4L19 7"
+                      stroke="#16a34a"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
                 </div>
                 <p className="text-sm text-green-800">
-                  <span className="font-bold">You're enrolled!</span> "{newCourse.title}" has been added to your courses.
+                  <span className="font-bold">You're enrolled!</span> "
+                  {newCourse.title}" has been added to your courses.
                 </p>
               </div>
               <button
@@ -246,24 +264,21 @@ export default function MyLearning() {
                 <div
                   className="grid gap-6 mb-12"
                   style={{
-                    gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+                    gridTemplateColumns:
+                      "repeat(auto-fill, minmax(280px, 1fr))",
                   }}
                 >
-                  {visibleActive.map((e) => {
-                    const course = courseCatalog[e.courseId];
-                    if (!course) return null;
-                    return (
-                      <ActiveCourseCard
-                        key={e.courseId}
-                        enrolled={e}
-                        course={course}
-                        onContinue={() => navigate(`/courses/${course.id}`)}
-                        onSimulateProgress={() =>
-                          handleSimulateProgress(e.courseId)
-                        }
-                      />
-                    );
-                  })}
+                  {visibleActive.map((e) => (
+                    <ActiveCourseCard
+                      key={e.courseId}
+                      enrolled={e}
+                      course={e.course}
+                      onContinue={() => navigate(`/courses/${e.course.id}`)}
+                      onSimulateProgress={() =>
+                        handleSimulateProgress(e.courseId)
+                      }
+                    />
+                  ))}
                 </div>
               )}
 
@@ -280,19 +295,15 @@ export default function MyLearning() {
                     </span>
                   </div>
                   <div className="grid grid-cols-2 gap-5">
-                    {visibleCompleted.map((e, index) => {
-                      const course = courseCatalog[e.courseId];
-                      if (!course) return null;
-                      return (
-                        <CompletedCourseRow
-                          key={e.courseId}
-                          course={course}
-                          completedAt={e.completedAt}
-                          completionNumber={index + 1}
-                          onRevisit={() => navigate(`/courses/${course.id}`)}
-                        />
-                      );
-                    })}
+                    {visibleCompleted.map((e, index) => (
+                      <CompletedCourseRow
+                        key={e.courseId}
+                        course={e.course}
+                        completedAt={e.completedAt}
+                        completionNumber={index + 1}
+                        onRevisit={() => navigate(`/courses/${e.course.id}`)}
+                      />
+                    ))}
                   </div>
                 </div>
               )}
