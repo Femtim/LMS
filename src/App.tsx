@@ -1,13 +1,10 @@
-import React from 'react'
-// import { useEffect } from "react";
-// import { seedCourses } from "./seedCourses";
 import HomePage  from './pages/homePage/HomePage'
 import { Navigate, Route, Routes } from "react-router-dom";
 import SignUpPage from "./pages/Auth/Signup";
 import LoginPage from "./pages/Auth/Login";
 import ListingPage from "./pages/courses/exploreCourse";
 import CourseDetailWrapper from "./pages/courses/subComponents/CourseDetailWrapper";
-import PaymentPage from "./components/user/myCourses/PaymentPage";
+import PaymentPage from "./components/user/payment/PaymentPage";
 // import Navbar from "./components/ui/Navbar";
 import AboutUs from "./pages/aboutUs/AboutUs";
 import MyLearning from "./components/user/myCourses/myCourse";
@@ -16,6 +13,8 @@ import Achievements from './components/user/achievements/achievements';
 import Library from './components/user/library/library';
 import Messages from './components/user/messages/messages';
 import Schedule from './components/user/schedule/schedule';
+import Settings from './components/user/settings/settings';
+import PaymentSuccess from './components/user/payment/subComponents/paymentSuccess';
 
 
 function InfoPage({ title, description }: { title: string; description: string }) {
@@ -65,6 +64,8 @@ export default function App() {
         <Route path="/library" element={<Library />} />
         <Route path="/messages" element={<Messages />} />
         <Route path="/schedule" element={<Schedule />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/payment/success" element={<PaymentSuccess />} />
         <Route path="*" element={<Navigate to="/" replace />} />
 
       </Routes>

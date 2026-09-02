@@ -1,12 +1,18 @@
-// components/courses/PaymentPage.tsx
-
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { enrollCourse } from "../../../types";
 import type { Course } from "../../../types";
 import { getCourseById } from "../../../services/courseService";
 import Footer from "../../ui/Footer";
 import Navbar from "../../ui/Navbar";
+import supabase from "../../../utils/supabase";
+
+function formatNaira(amount: number) {
+  return new Intl.NumberFormat("en-NG", {
+    style: "currency",
+    currency: "NGN",
+    minimumFractionDigits: 2,
+  }).format(amount);
+}
 
 function InputField({ label, placeholder, type = "text", value, onChange, hint }: {
   label: string; placeholder: string; type?: string;
@@ -38,45 +44,79 @@ function CheckIcon() {
 }
 
 export default function PaymentPage() {
-  const { id }   = useParams<{ id: string }>();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+
   const [course, setCourse] = useState<Course | null>(null);
+  const [isLoadingCourse, setIsLoadingCourse] = useState(true);
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (id) {
-      getCourseById(Number(id)).then(setCourse).catch(() => setCourse(null));
+    if (!id) {
+      setCourse(null);
+      setIsLoadingCourse(false);
+      return;
     }
+
+    setIsLoadingCourse(true);
+    getCourseById(Number(id))
+      .then((result) => { setCourse(result); })
+      .catch(() => setCourse(null))
+      .finally(() => setIsLoadingCourse(false));
   }, [id]);
 
-  const [cardName,   setCardName]   = useState("");
-  const [cardNumber, setCardNumber] = useState("");
-  const [expiry,     setExpiry]     = useState("");
-  const [cvv,        setCvv]        = useState("");
-  const [email,      setEmail]      = useState("");
-  const [loading,    setLoading]    = useState(false);
+  const allFilled = email.includes("@");
 
-  const handleCardNumber = (val: string) => {
-    const digits = val.replace(/\D/g, "").slice(0, 16);
-    setCardNumber(digits.replace(/(.{4})/g, "$1 ").trim());
-  };
-
-  const handleExpiry = (val: string) => {
-    const digits = val.replace(/\D/g, "").slice(0, 4);
-    setExpiry(digits.length >= 3 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits);
-  };
-
-  const allFilled = cardName && cardNumber.length === 19 && expiry.length === 5 && cvv.length >= 3 && email;
-
-  const handleSubmit = () => {
+  const handleCheckout = async () => {
     if (!allFilled || !course) return;
     setLoading(true);
-    setTimeout(() => {
-      enrollCourse(course.id);           // ← register enrollment in store
-      navigate("/myCourses", {
-        state: { newCourseId: course.id, email },   // pass to dashboard
-      });
-    }, 1800);
+    setError(null);
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      setError("You need to be logged in to enroll.");
+      setLoading(false);
+      navigate("/login", { state: { redirectTo: `/payment/${course.id}` } });
+      return;
+    }
+
+    // Calls a Supabase Edge Function that initializes a Paystack transaction
+    // server-side and returns its authorization_url. No card data ever
+    // touches our app — Paystack's hosted page collects it directly.
+    const { data, error: fnError } = await supabase.functions.invoke(
+      "initialize-transaction",
+      {
+        body: {
+          courseId: course.id,
+          userId: user.id,
+          email,
+          amount: course.price, // NGN, converted to kobo server-side
+        },
+      },
+    );
+
+    if (fnError || !data?.authorization_url) {
+      setError("Couldn't start checkout. Please try again.");
+      setLoading(false);
+      return;
+    }
+
+    // Redirect to Paystack's hosted checkout page.
+    window.location.href = data.authorization_url;
   };
+
+  if (isLoadingCourse) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 flex-col gap-4">
+        <p className="text-gray-500 text-sm">Loading course...</p>
+      </div>
+    );
+  }
 
   if (!course) {
     return (
@@ -109,41 +149,49 @@ export default function PaymentPage() {
         </button>
 
         <h1 className="text-3xl font-extrabold text-gray-900 mb-1.5 mt-0">Complete your enrollment</h1>
-        <p className="text-gray-500 text-sm mb-8 mt-0">Secure checkout — your payment info is encrypted.</p>
+        <p className="text-gray-500 text-sm mb-8 mt-0">
+          Secure checkout — you'll enter payment details on Paystack's encrypted checkout page.
+        </p>
 
         <div className="flex gap-8 items-start">
           {/* LEFT: form */}
           <div className="flex-1 min-w-0 flex flex-col gap-6">
             <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
               <h2 className="text-gray-900 font-bold text-base m-0 mb-4">Contact information</h2>
-              <InputField label="Email address" placeholder="you@example.com" type="email"
-                value={email} onChange={setEmail} hint="Your receipt and course access will be sent here." />
+              <InputField
+                label="Email address"
+                placeholder="you@example.com"
+                type="email"
+                value={email}
+                onChange={setEmail}
+                hint="Your receipt and course access will be sent here."
+              />
             </div>
 
             <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-              <h2 className="text-gray-900 font-bold text-base m-0 mb-4">Payment details</h2>
+              <h2 className="text-gray-900 font-bold text-base m-0 mb-4">Payment</h2>
               <div className="flex items-center gap-2 mb-5">
-                {["VISA", "MC", "AMEX", "DISC"].map((card) => (
-                  <span key={card} className="border border-gray-200 rounded-md px-2.5 py-1 text-xs font-bold text-gray-500 bg-gray-50">{card}</span>
+                {["Card", "Bank Transfer", "USSD"].map((method) => (
+                  <span key={method} className="border border-gray-200 rounded-md px-2.5 py-1 text-xs font-bold text-gray-500 bg-gray-50">{method}</span>
                 ))}
                 <span className="text-xs text-gray-400 ml-1">accepted</span>
               </div>
-              <div className="flex flex-col gap-4">
-                <InputField label="Name on card" placeholder="John Doe" value={cardName} onChange={setCardName} />
-                <InputField label="Card number" placeholder="1234 5678 9012 3456" value={cardNumber} onChange={handleCardNumber} />
-                <div className="grid grid-cols-2 gap-4">
-                  <InputField label="Expiry date" placeholder="MM/YY" value={expiry} onChange={handleExpiry} />
-                  <InputField label="CVV" placeholder="123" type="password"
-                    value={cvv} onChange={(v) => setCvv(v.replace(/\D/g, "").slice(0, 4))} />
-                </div>
-              </div>
+              <p className="text-sm text-gray-500 leading-relaxed">
+                You'll be redirected to Paystack's secure checkout to enter your
+                card, bank transfer, or USSD details. We never see or store your
+                card number.
+              </p>
             </div>
+
+            {error && (
+              <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">{error}</p>
+            )}
 
             <div className="flex items-center gap-2 px-1">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              <span className="text-xs text-gray-400">256-bit SSL encryption. We never store your card details.</span>
+              <span className="text-xs text-gray-400">256-bit SSL encryption via Paystack. We never store your card details.</span>
             </div>
           </div>
 
@@ -163,23 +211,27 @@ export default function PaymentPage() {
               <div className="flex flex-col gap-2 mb-4 pb-4 border-b border-gray-100">
                 <div className="flex justify-between items-center">
                   <span className="text-gray-500 text-xs">Original price</span>
-                  <span className="text-gray-400 text-xs line-through">${(course.originalPrice ?? course.price).toFixed(2)}</span>
+                  <span className="text-gray-400 text-xs line-through">
+                    {formatNaira(course.originalPrice ?? course.price)}
+                  </span>
                 </div>
                 {discount && (
                   <div className="flex justify-between items-center">
                     <span className="text-green-600 text-xs font-medium">Discount ({discount}% off)</span>
-                    <span className="text-green-600 text-xs font-medium">-${((course.originalPrice ?? 0) - course.price).toFixed(2)}</span>
+                    <span className="text-green-600 text-xs font-medium">
+                      -{formatNaira((course.originalPrice ?? 0) - course.price)}
+                    </span>
                   </div>
                 )}
               </div>
 
               <div className="flex justify-between items-center mb-5">
                 <span className="text-gray-900 font-bold text-sm">Total</span>
-                <span className="text-gray-900 font-extrabold text-xl">${course.price.toFixed(2)}</span>
+                <span className="text-gray-900 font-extrabold text-xl">{formatNaira(course.price)}</span>
               </div>
 
               <button
-                onClick={handleSubmit}
+                onClick={handleCheckout}
                 disabled={!allFilled || loading}
                 className={`w-full py-3.5 rounded-xl text-white font-bold text-sm border-none transition-all duration-200 ${
                   !allFilled ? "bg-gray-300 cursor-not-allowed"
@@ -187,7 +239,7 @@ export default function PaymentPage() {
                   :             "bg-blue-600 hover:bg-blue-500 cursor-pointer"
                 }`}
               >
-                {loading ? "Processing..." : `Pay $${course.price.toFixed(2)}`}
+                {loading ? "Redirecting to Paystack..." : `Pay ${formatNaira(course.price)}`}
               </button>
               <p className="text-gray-400 text-xs text-center mt-2 mb-0">30-Day Money-Back Guarantee</p>
 

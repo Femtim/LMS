@@ -1,7 +1,39 @@
 import type { Course } from "../../../../types";
 
+interface CompletedCourseRowProps {
+  course: Course;
+  completedAt?: string | null;
+  completionNumber: number;
+  onRevisit: () => void;
+  onViewCertificate?: () => void;
+}
 
-export function CompletedCourseRow({ course }: { course: Course }) {
+function formatCompletedDate(dateStr?: string | null) {
+  if (!dateStr) return null;
+  const date = new Date(dateStr);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function ordinal(n: number) {
+  const s = ["th", "st", "nd", "rd"];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] ?? s[v] ?? s[0]);
+}
+
+export function CompletedCourseRow({
+  course,
+  completedAt,
+  completionNumber,
+  onRevisit,
+  onViewCertificate,
+}: CompletedCourseRowProps) {
+  const formattedDate = formatCompletedDate(completedAt);
+
   return (
     <div className="bg-white border border-gray-200 rounded-2xl p-4 flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
       {/* Thumbnail */}
@@ -24,16 +56,31 @@ export function CompletedCourseRow({ course }: { course: Course }) {
             CERTIFIED
           </span>
         </div>
-        <p className="text-gray-500 text-xs m-0">Instructor: {course.instructor?.name ?? "—"}</p>
+        <p className="text-gray-500 text-xs m-0">
+          Instructor: {course.instructor?.name ?? "—"}
+          {formattedDate && <> · Completed {formattedDate}</>}
+          {" · "}
+          <span className="font-semibold text-gray-600">
+            Your {ordinal(completionNumber)} completed course
+          </span>
+        </p>
         <div className="flex items-center gap-4 mt-2">
-          <button className="flex items-center gap-1 text-blue-600 text-xs font-semibold hover:underline bg-transparent border-none cursor-pointer p-0">
+          <button
+            onClick={onViewCertificate}
+            disabled={!onViewCertificate}
+            title={onViewCertificate ? undefined : "Certificates aren't available yet"}
+            className="flex items-center gap-1 text-xs font-semibold bg-transparent border-none p-0 text-blue-600 hover:underline cursor-pointer disabled:cursor-not-allowed disabled:text-gray-300 disabled:hover:no-underline"
+          >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
               <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" />
               <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
             </svg>
             View Certificate
           </button>
-          <button className="flex items-center gap-1 text-gray-500 text-xs font-semibold hover:text-gray-900 bg-transparent border-none cursor-pointer p-0">
+          <button
+            onClick={onRevisit}
+            className="flex items-center gap-1 text-gray-500 text-xs font-semibold hover:text-gray-900 bg-transparent border-none cursor-pointer p-0"
+          >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
               <path d="M1 4v6h6M23 20v-6h-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
               <path d="M20.49 9A9 9 0 005.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 013.51 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
