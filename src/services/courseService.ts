@@ -11,21 +11,49 @@ export type DatabaseCourse = {
   price: number | string | null;
   published: boolean;
   created_at: string;
+
+  students: number | null;
+  duration: string | null;
+  rating: number | null;
 };
+
+// export function toCourse(course: DatabaseCourse): Course {
+//   return {
+//     id: course.id, // keep as string — this is a uuid, not a number
+//     title: course.title,
+//     category: course.category ?? "Development",
+//     level: course.level ?? "Beginner",
+//     rating: 0,
+//     reviews: "0",
+//     price: Number(course.price ?? 0),
+//     image: course.thumbnail_url ?? "/placeholder-course.jpg",
+//     description: course.description ?? undefined,
+//   };
+// }
+
 
 export function toCourse(course: DatabaseCourse): Course {
   return {
-    id: course.id, // keep as string — this is a uuid, not a number
+    id: course.id,
     title: course.title,
     category: course.category ?? "Development",
     level: course.level ?? "Beginner",
-    rating: 0,
+
+    rating: Number(course.rating ?? 0),
     reviews: "0",
+
+    students: course.students ?? 0,
+    duration: course.duration ?? undefined,
+
     price: Number(course.price ?? 0),
+
     image: course.thumbnail_url ?? "/placeholder-course.jpg",
+
     description: course.description ?? undefined,
+
   };
 }
+
 
 export async function getCourses() {
   const { data, error } = await supabase
